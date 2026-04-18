@@ -1,0 +1,50 @@
+{
+  "name": "pl_ingest_orders_to_lakehouse",
+  "properties": {
+    "description": "Sample ADF pipeline that copies raw order data and triggers Databricks transformations.",
+    "parameters": {
+      "landingPath": {
+        "type": "String",
+        "defaultValue": "landing/orders/orders.csv"
+      },
+      "batchDate": {
+        "type": "String",
+        "defaultValue": "2026-04-19"
+      }
+    },
+    "activities": [
+      {
+        "name": "CopyOrdersToBronzeZone",
+        "type": "Copy",
+        "policy": {
+          "timeout": "01:00:00",
+          "retry": 1
+        }
+      },
+      {
+        "name": "RunBronzeToSilverNotebook",
+        "type": "DatabricksNotebook",
+        "dependsOn": [
+          {
+            "activity": "CopyOrdersToBronzeZone",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "RunSilverToGoldNotebook",
+        "type": "DatabricksNotebook",
+        "dependsOn": [
+          {
+            "activity": "RunBronzeToSilverNotebook",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
