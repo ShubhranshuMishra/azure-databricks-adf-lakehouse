@@ -1,0 +1,9 @@
+product_id,product_name,category
+P100,Lakehouse Starter Pack,Software
+P101,Analytics Accelerator,Software
+P200,SQL Training Bundle,Services
+P210,Data Quality Workshop,Services
+P220,Pipeline Optimization Support,Services
+P300,Reporting Toolkit,Software
+P310,Executive Dashboard Pack,Software
+P320,Data Governance Essentials,Services

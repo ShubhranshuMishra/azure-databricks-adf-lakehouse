@@ -1,8 +1,11 @@
 # Azure Databricks ADF Lakehouse Pipeline
 
-Portfolio project that demonstrates an enterprise-style Azure data engineering pattern using Azure Data Factory for orchestration, Databricks for transformation, and Delta Lake for medallion-style modeling.
+Enterprise-style Azure lakehouse project that shows how to orchestrate ingestion with Azure Data Factory, transform data with Databricks, and publish curated Delta tables for reporting.
 
-## Stack
+## Business Scenario
+A UK retail business receives daily order extracts from multiple channels and needs a governed lakehouse that supports finance, commercial analytics, and country-level performance reporting.
+
+## Tech Stack
 - Azure Data Factory
 - Azure Databricks
 - Delta Lake
@@ -10,15 +13,24 @@ Portfolio project that demonstrates an enterprise-style Azure data engineering p
 - PySpark
 - SQL
 
-## Scenario
-This project ingests retail order data from a landing zone into bronze tables, applies cleansing and conformance rules in silver, and produces gold-level business metrics for downstream reporting.
-
 ## Architecture
-1. Azure Data Factory copies raw CSV files into ADLS Gen2.
-2. ADF triggers a Databricks notebook with runtime parameters.
-3. Databricks loads raw files into Delta bronze tables.
-4. Silver transformations standardize schema, deduplicate, and enforce data quality rules.
-5. Gold tables produce curated KPIs such as daily revenue, top products, and country-level sales.
+```mermaid
+flowchart LR
+    A["Source CSV Files"] --> B["Azure Data Factory"]
+    B --> C["ADLS Landing / Bronze"]
+    C --> D["Databricks Bronze to Silver"]
+    D --> E["Delta Silver Tables"]
+    E --> F["Databricks Silver to Gold"]
+    F --> G["Gold KPI Tables"]
+    G --> H["Power BI / Reporting"]
+```
+
+## Pipeline Flow
+1. Azure Data Factory copies raw orders, customers, and products to ADLS landing storage.
+2. ADF triggers Databricks notebooks with batch parameters.
+3. Bronze ingestion preserves raw structure and timestamps every record.
+4. Silver logic standardizes schema, filters bad records, deduplicates orders, and enriches with customer and product attributes.
+5. Gold models publish country, category, and daily revenue metrics for business reporting.
 
 ## Repository Layout
 ```text
@@ -26,23 +38,31 @@ adf/pipeline-definition.json
 databricks/notebooks/01_bronze_to_silver.py
 databricks/notebooks/02_silver_to_gold.py
 sample-data/orders.csv
+sample-data/customers.csv
+sample-data/products.csv
 ```
 
-## What This Shows Recruiters
-- Medallion data modeling
-- Parameterized orchestration
-- PySpark transformation logic
-- Delta Lake merge and partitioning patterns
-- Cloud-native batch pipeline design
+## Sample KPI Output
+| order_date | country | total_revenue | total_orders | active_customers |
+| --- | --- | ---: | ---: | ---: |
+| 2026-04-18 | UK | 349.00 | 2 | 2 |
+| 2026-04-19 | UK | 498.00 | 2 | 2 |
+| 2026-04-19 | DE | 289.50 | 1 | 1 |
+
+## Recruiter Talking Points
+- Demonstrates medallion architecture in Azure
+- Uses parameterized orchestration between ADF and Databricks
+- Shows Delta Lake partitioning and business metric generation
+- Mirrors common enterprise migration and reporting use cases
 
 ## How To Demo
-1. Upload the sample CSV into your landing container.
-2. Create bronze, silver, and gold containers in ADLS.
-3. Import the ADF pipeline JSON and wire linked services.
-4. Run `01_bronze_to_silver.py`.
-5. Run `02_silver_to_gold.py`.
+1. Upload the sample CSV files into the landing container.
+2. Create bronze, silver, and gold storage paths in ADLS.
+3. Import the ADF pipeline JSON and attach linked services.
+4. Run `01_bronze_to_silver.py` to build clean enriched silver data.
+5. Run `02_silver_to_gold.py` to generate reporting-ready gold tables.
 
-## Improvement Ideas
-- Add schema drift handling in ADF
-- Add expectations with Great Expectations or Delta Live Tables
-- Add CI validation for notebook deployment
+## Future Enhancements
+- Add schema validation and quarantine handling for bad records
+- Add Delta merge logic for incremental loads
+- Add deployment through Azure DevOps or GitHub Actions

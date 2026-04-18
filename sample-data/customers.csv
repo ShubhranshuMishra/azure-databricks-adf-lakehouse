@@ -1,0 +1,11 @@
+customer_id,customer_segment,customer_tier
+501,SMB,Silver
+502,Enterprise,Gold
+503,MidMarket,Silver
+504,SMB,Bronze
+505,Enterprise,Gold
+506,Enterprise,Gold
+507,MidMarket,Silver
+508,Enterprise,Platinum
+509,SMB,Silver
+510,SMB,Bronze
